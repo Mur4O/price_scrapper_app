@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
-import 'first_screen.dart';
-import 'second_screen.dart';
+import 'package:price_scrapper_app/list_of_products.dart';
+import 'package:price_scrapper_app/error_page.dart';
+import 'package:uuid/uuid.dart';
+import 'package:http/http.dart' as http;
+import 'dart:developer' show log;
+
+String uniqueId = Uuid().v4();
 
 class Home extends StatefulWidget {
   @override
@@ -9,36 +14,38 @@ class Home extends StatefulWidget {
 
 // Главный экран
 class _HomeState extends State<Home> {
-  @override
+  Future<bool> _createSession() async {
+    String uri = 'http://10.0.2.2:5000/createSession?sessionGUID=$uniqueId';
+    var url = Uri.parse(uri);
+    final response = await http.post(url);
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
-  List<Widget> pages = [
-    FirstScreen(),
-    SecondScreen()
-  ];
+  List<Widget> pages = [ListOfProducts(), ErrorPage()];
 
   int _pageindex = 0;
 
-  void _updatePage() {
-    setState(() {});
-  }
-
+  // void _updatePage() {
+  //   setState(() {});
+  // }
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData.dark(),
-      home: Scaffold(
-        body: pages.elementAt(_pageindex),
-        bottomNavigationBar: BottomAppBar(
-          // height: 50,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              IconButton(icon: Icon(Icons.ads_click), onPressed: () {_pageindex = 0; _updatePage();}),
-              IconButton(icon: Icon(Icons.search), onPressed: () {_pageindex = 1; _updatePage();}),
-              IconButton(icon: Icon(Icons.menu), onPressed: () {}),
-            ],
-          ),
-        )
-      )
+      home: FutureBuilder<bool>(
+        future: _createSession(),
+        builder: (context, snapshot) {
+          if (snapshot.data == true) {
+            return pages[_pageindex];
+          } else {
+            return ErrorPage();
+          }
+        },
+      ),
     );
   }
 }
