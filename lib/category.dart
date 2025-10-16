@@ -10,7 +10,7 @@ class Category {
   String? mediumPrice;
   String? imagePath;
 
-  Category(
+  Category (
     {
       this.productName,
       this.graphicsProcessor,
@@ -36,5 +36,11 @@ class Category {
     busWidth = json['busWidth'];
     mediumPrice = json['mediumPrice'];
     imagePath = json['imagePath'];
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'productName': productName
+    };
   }
 }

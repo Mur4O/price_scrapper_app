@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:price_scrapper_app/category.dart';
+// import 'dart:developer';
 
 // import 'dart:developer' show log;
 import 'package:material_symbols_icons/symbols.dart';
@@ -20,20 +21,29 @@ class ListOfProducts extends StatefulWidget {
 class _ListOfProducts extends State<ListOfProducts> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  final TextStyle TextStyle20 = TextStyle(
-    fontSize: 20,
-    color: Color(0xFFFFFFFF),
-  );
-  final TextStyle TextStyle18 = TextStyle(
-    fontSize: 20,
-    color: Color(0xFFFFFFFF),
-  );
+  final List<List<String>> _options = [
+    ['productName', 'Модель', ''],
+    ['graphicsProcessor', 'Графический процессор', ''],
+    ['memorySize', 'Объём видеопамяти', ''],
+    ['memoryType', 'Тип видеопамяти', ''],
+    ['busWidth', 'Ширина шины', ''],
+    ['mediumPrice', 'Цена', ''],
+  ];
 
-  final List<String> _options = ['Опция 1', 'Опция 2', 'Опция 3', 'Опция 4'];
-  String? _selectedValue;
+  // String? _selectedValue;
 
   void _openDrawer() {
     _scaffoldKey.currentState!.openEndDrawer();
+  }
+
+  static TextStyle whiteText(double x) {
+    return TextStyle(fontSize: x, color: Color(0xFFFFFFFF));
+  }
+
+  void nullFilters() {
+    for (var elem in _options) {
+      elem[2] = '';
+    }
   }
 
   // Функция что выполняет запрос и полученный json парсит в список
@@ -47,6 +57,27 @@ class _ListOfProducts extends State<ListOfProducts> {
     //   error: body.map((e) => Category.fromJson(e)).toList(),
     // );
     return body.map((e) => Category.fromJson(e)).toList();
+  }
+
+  // По переданному имени фильтра выдаёт все уникальные значения
+  static Future<List<String>> getUniqueValues(String column) async {
+    var url = Uri.parse('http://10.0.2.2:5000/getUniqueValues/$column');
+    final response = await http.get(url);
+    final List body = json.decode(response.body);
+    // log(
+    //   "Log Event",
+    //   name: "buttonLog",
+    //   error: body.map((e) => e.toString()).toList(),
+    // );
+    return body.map((e) => e.toString()).toList();
+  }
+
+  Future sendFilters() async {
+    List params = [];
+    for (var elem in _options) {
+      params.add(elem[2]);
+    }
+    // log("Log event", error: params);
   }
 
   // Вызов функции, кэширование результата запроса
@@ -93,392 +124,137 @@ class _ListOfProducts extends State<ListOfProducts> {
         child: Padding(
           padding: EdgeInsets.only(top: 15, left: 20, right: 20, bottom: 50),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            // mainAxisAlignment: MainAxisAlignment.start,
             children: [
-
               Expanded(
-                child: ListView(
-                  children: [
-                    DropdownButton<String>(
-                      value: _selectedValue,
-                      // текущее выбранное значение
-                      hint: Text('Выберите опцию'),
-                      // подсказка, если ничего не выбрано
-                      onChanged: (String? newValue) {
-                        // Вызывается при выборе нового значения
-                        setState(() {
-                          _selectedValue = newValue;
-                        });
-                      },
-                      items:
-                          _options.map<DropdownMenuItem<String>>((
-                            String value,
-                          ) {
-                            // Создаём элементы списка
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                    ),
-                    SizedBox(height: 20),
-                    DropdownButton<String>(
-                      value: _selectedValue,
-                      // текущее выбранное значение
-                      hint: Text('Выберите опцию'),
-                      // подсказка, если ничего не выбрано
-                      onChanged: (String? newValue) {
-                        // Вызывается при выборе нового значения
-                        setState(() {
-                          _selectedValue = newValue;
-                        });
-                      },
-                      items:
-                          _options.map<DropdownMenuItem<String>>((
-                            String value,
-                          ) {
-                            // Создаём элементы списка
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                    ),
-                    SizedBox(height: 20),
-                    DropdownButton<String>(
-                      value: _selectedValue,
-                      // текущее выбранное значение
-                      hint: Text('Выберите опцию'),
-                      // подсказка, если ничего не выбрано
-                      onChanged: (String? newValue) {
-                        // Вызывается при выборе нового значения
-                        setState(() {
-                          _selectedValue = newValue;
-                        });
-                      },
-                      items:
-                          _options.map<DropdownMenuItem<String>>((
-                            String value,
-                          ) {
-                            // Создаём элементы списка
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                    ),
-                    SizedBox(height: 20),
-                    DropdownButton<String>(
-                      value: _selectedValue,
-                      // текущее выбранное значение
-                      hint: Text('Выберите опцию'),
-                      // подсказка, если ничего не выбрано
-                      onChanged: (String? newValue) {
-                        // Вызывается при выборе нового значения
-                        setState(() {
-                          _selectedValue = newValue;
-                        });
-                      },
-                      items:
-                          _options.map<DropdownMenuItem<String>>((
-                            String value,
-                          ) {
-                            // Создаём элементы списка
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                    ),
-                    SizedBox(height: 20),
-                    DropdownButton<String>(
-                      value: _selectedValue,
-                      // текущее выбранное значение
-                      hint: Text('Выберите опцию'),
-                      // подсказка, если ничего не выбрано
-                      onChanged: (String? newValue) {
-                        // Вызывается при выборе нового значения
-                        setState(() {
-                          _selectedValue = newValue;
-                        });
-                      },
-                      items:
-                          _options.map<DropdownMenuItem<String>>((
-                            String value,
-                          ) {
-                            // Создаём элементы списка
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                    ),
-                    SizedBox(height: 20),
-                    DropdownButton<String>(
-                      value: _selectedValue,
-                      // текущее выбранное значение
-                      hint: Text('Выберите опцию'),
-                      // подсказка, если ничего не выбрано
-                      onChanged: (String? newValue) {
-                        // Вызывается при выборе нового значения
-                        setState(() {
-                          _selectedValue = newValue;
-                        });
-                      },
-                      items:
-                          _options.map<DropdownMenuItem<String>>((
-                            String value,
-                          ) {
-                            // Создаём элементы списка
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                    ),
-                    SizedBox(height: 20),
-                    DropdownButton<String>(
-                      value: _selectedValue,
-                      // текущее выбранное значение
-                      hint: Text('Выберите опцию'),
-                      // подсказка, если ничего не выбрано
-                      onChanged: (String? newValue) {
-                        // Вызывается при выборе нового значения
-                        setState(() {
-                          _selectedValue = newValue;
-                        });
-                      },
-                      items:
-                          _options.map<DropdownMenuItem<String>>((
-                            String value,
-                          ) {
-                            // Создаём элементы списка
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                    ),
-                    SizedBox(height: 20),
-                    DropdownButton<String>(
-                      value: _selectedValue,
-                      // текущее выбранное значение
-                      hint: Text('Выберите опцию'),
-                      // подсказка, если ничего не выбрано
-                      onChanged: (String? newValue) {
-                        // Вызывается при выборе нового значения
-                        setState(() {
-                          _selectedValue = newValue;
-                        });
-                      },
-                      items:
-                          _options.map<DropdownMenuItem<String>>((
-                            String value,
-                          ) {
-                            // Создаём элементы списка
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                    ),
-                    SizedBox(height: 20),
-                    DropdownButton<String>(
-                      value: _selectedValue,
-                      // текущее выбранное значение
-                      hint: Text('Выберите опцию'),
-                      // подсказка, если ничего не выбрано
-                      onChanged: (String? newValue) {
-                        // Вызывается при выборе нового значения
-                        setState(() {
-                          _selectedValue = newValue;
-                        });
-                      },
-                      items:
-                          _options.map<DropdownMenuItem<String>>((
-                            String value,
-                          ) {
-                            // Создаём элементы списка
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                    ),
-                    SizedBox(height: 20),
-                    DropdownButton<String>(
-                      value: _selectedValue,
-                      // текущее выбранное значение
-                      hint: Text('Выберите опцию'),
-                      // подсказка, если ничего не выбрано
-                      onChanged: (String? newValue) {
-                        // Вызывается при выборе нового значения
-                        setState(() {
-                          _selectedValue = newValue;
-                        });
-                      },
-                      items:
-                          _options.map<DropdownMenuItem<String>>((
-                            String value,
-                          ) {
-                            // Создаём элементы списка
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                    ),
-                    SizedBox(height: 20),
-                    DropdownButton<String>(
-                      value: _selectedValue,
-                      // текущее выбранное значение
-                      hint: Text('Выберите опцию'),
-                      // подсказка, если ничего не выбрано
-                      onChanged: (String? newValue) {
-                        // Вызывается при выборе нового значения
-                        setState(() {
-                          _selectedValue = newValue;
-                        });
-                      },
-                      items:
-                          _options.map<DropdownMenuItem<String>>((
-                            String value,
-                          ) {
-                            // Создаём элементы списка
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                    ),
-                    SizedBox(height: 20),
-                    DropdownButton<String>(
-                      value: _selectedValue,
-                      // текущее выбранное значение
-                      hint: Text('Выберите опцию'),
-                      // подсказка, если ничего не выбрано
-                      onChanged: (String? newValue) {
-                        // Вызывается при выборе нового значения
-                        setState(() {
-                          _selectedValue = newValue;
-                        });
-                      },
-                      items:
-                          _options.map<DropdownMenuItem<String>>((
-                            String value,
-                          ) {
-                            // Создаём элементы списка
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                    ),
-                    SizedBox(height: 20),
-                    DropdownButton<String>(
-                      value: _selectedValue,
-                      // текущее выбранное значение
-                      hint: Text('Выберите опцию'),
-                      // подсказка, если ничего не выбрано
-                      onChanged: (String? newValue) {
-                        // Вызывается при выборе нового значения
-                        setState(() {
-                          _selectedValue = newValue;
-                        });
-                      },
-                      items:
-                          _options.map<DropdownMenuItem<String>>((
-                            String value,
-                          ) {
-                            // Создаём элементы списка
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                    ),
-                    SizedBox(height: 20),
-                    DropdownButton<String>(
-                      value: _selectedValue,
-                      // текущее выбранное значение
-                      hint: Text('Выберите опцию'),
-                      // подсказка, если ничего не выбрано
-                      onChanged: (String? newValue) {
-                        // Вызывается при выборе нового значения
-                        setState(() {
-                          _selectedValue = newValue;
-                        });
-                      },
-                      items:
-                          _options.map<DropdownMenuItem<String>>((
-                            String value,
-                          ) {
-                            // Создаём элементы списка
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                    ),
-                    SizedBox(height: 20),
-                    DropdownButton<String>(
-                      value: _selectedValue,
-                      // текущее выбранное значение
-                      hint: Text('Выберите опцию'),
-                      // подсказка, если ничего не выбрано
-                      onChanged: (String? newValue) {
-                        // Вызывается при выборе нового значения
-                        setState(() {
-                          _selectedValue = newValue;
-                        });
-                      },
-                      items:
-                          _options.map<DropdownMenuItem<String>>((
-                            String value,
-                          ) {
-                            // Создаём элементы списка
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                    ),
-                    SizedBox(height: 20),
+                child: ListView.builder(
+                  itemCount: _options.length,
+                  itemBuilder: (context, index) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          child: Text(_options[index][1], style: whiteText(25)),
+                        ),
+                        SizedBox(height: 10),
+                        FutureBuilder(
+                          future: getUniqueValues(_options[index][0]),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const CircularProgressIndicator();
+                            } else if (snapshot.hasData) {
+                              return SizedBox(
+                                width: double.infinity,
+                                child: DropdownButtonFormField<String>(
+                                  isExpanded: true,
 
-                  ],
+                                  // Означает, что виджет будет занимать только пространство внутри родителя
+                                  initialValue: _options[index][2],
+                                  onChanged: (String? newValue) {
+                                    setState(() {
+                                      _options[index][2] =
+                                          newValue ?? 'Выберите значение';
+                                    });
+                                  },
+                                  items:
+                                      snapshot.data!.map<
+                                        DropdownMenuItem<String>
+                                      >((String value) {
+                                        return DropdownMenuItem<String>(
+                                          value: value,
+                                          child: Text(
+                                            value,
+                                            // overflow: TextOverflow.ellipsis,
+                                            softWrap: true,
+                                            style: whiteText(18),
+                                          ),
+                                        );
+                                      }).toList(),
+
+                                  selectedItemBuilder: (context) {
+                                    return snapshot.data!.map<Widget>((
+                                      String value,
+                                    ) {
+                                      return Text(
+                                        value,
+                                        style: whiteText(18),
+                                        overflow: TextOverflow.ellipsis,
+                                        // Обрезает текст ...
+                                        maxLines: 1,
+                                      );
+                                    }).toList();
+                                  },
+                                ),
+                              );
+                            } else {
+                              return Center(
+                                child: const Text("No data available"),
+                              );
+                            }
+                          },
+                        ),
+                        SizedBox(height: 10),
+                      ],
+                    );
+                  },
                 ),
               ),
-
-              // Выпадающее меню
-              Container(
-                padding: EdgeInsets.all(16),
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context); // закрывает Drawer
-                    // Здесь можно применить фильтры
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF6C63FF), // фиолетовый цвет
-                    padding: EdgeInsets.only(left: 20, top: 10, right: 20, bottom: 10),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+              Row(
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(5),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        sendFilters();
+                        // Здесь можно применить фильтры
+                        Navigator.pop(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF6C63FF), // фиолетовый цвет
+                        padding: EdgeInsets.only(
+                          left: 10,
+                          top: 10,
+                          right: 10,
+                          bottom: 10,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Text('Применить', style: whiteText(18)),
                     ),
                   ),
-                  child: Text(
-                    'Применить',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                  SizedBox(width: 10),
+                  Container(
+                    padding: EdgeInsets.all(5),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        nullFilters();
+                        setState(() {});
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF3A3A4D), // фиолетовый цвет
+                        padding: EdgeInsets.only(
+                          left: 10,
+                          top: 10,
+                          right: 10,
+                          bottom: 10,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Text('Сбросить', style: whiteText(18)),
                     ),
                   ),
-                ),
+                ],
               ),
             ],
           ),
         ),
       ),
-      drawerEnableOpenDragGesture: false,
+      // drawerEnableOpenDragGesture: false,
     );
   }
 
@@ -525,7 +301,7 @@ class _ListOfProducts extends State<ListOfProducts> {
                           child: Center(
                             child: Text(
                               'Изображение недоступно',
-                              style: TextStyle20,
+                              style: whiteText(20),
                               textAlign: TextAlign.center,
                             ),
                           ),
@@ -548,7 +324,7 @@ class _ListOfProducts extends State<ListOfProducts> {
                   child: Center(
                     child: Text(
                       category.productName ?? 'No data',
-                      style: TextStyle20,
+                      style: whiteText(20),
                     ),
                   ),
                 ),
@@ -567,7 +343,7 @@ class _ListOfProducts extends State<ListOfProducts> {
                       ),
                       child: Text(
                         category.graphicsProcessor ?? 'No data',
-                        style: TextStyle20,
+                        style: whiteText(20),
                       ),
                     ),
 
@@ -581,7 +357,7 @@ class _ListOfProducts extends State<ListOfProducts> {
                       ),
                       child: Text(
                         category.memorySize ?? 'No data',
-                        style: TextStyle20,
+                        style: whiteText(20),
                       ),
                     ),
 
@@ -595,7 +371,7 @@ class _ListOfProducts extends State<ListOfProducts> {
                       ),
                       child: Text(
                         category.memoryType ?? 'No data',
-                        style: TextStyle20,
+                        style: whiteText(20),
                       ),
                     ),
                   ],
@@ -615,7 +391,7 @@ class _ListOfProducts extends State<ListOfProducts> {
                       ),
                       child: Text(
                         category.rops ?? 'No data',
-                        style: TextStyle20,
+                        style: whiteText(20),
                       ),
                     ),
                     Container(
@@ -626,7 +402,7 @@ class _ListOfProducts extends State<ListOfProducts> {
                       ),
                       child: Text(
                         category.tmus ?? 'No data',
-                        style: TextStyle20,
+                        style: whiteText(20),
                       ),
                     ),
                     Container(
@@ -637,7 +413,7 @@ class _ListOfProducts extends State<ListOfProducts> {
                       ),
                       child: Text(
                         category.cores ?? 'No data',
-                        style: TextStyle20,
+                        style: whiteText(20),
                       ),
                     ),
                     Container(
@@ -648,7 +424,7 @@ class _ListOfProducts extends State<ListOfProducts> {
                       ),
                       child: Text(
                         category.busWidth ?? 'No data',
-                        style: TextStyle20,
+                        style: whiteText(20),
                       ),
                     ),
                   ],
@@ -670,12 +446,12 @@ class _ListOfProducts extends State<ListOfProducts> {
                         children: [
                           Text(
                             'Средняя цена:',
-                            style: TextStyle18,
+                            style: whiteText(18),
                             textAlign: TextAlign.center,
                           ),
                           Text(
                             category.mediumPrice ?? 'No data',
-                            style: TextStyle20,
+                            style: whiteText(20),
                             textAlign: TextAlign.center,
                           ),
                         ],
@@ -694,7 +470,7 @@ class _ListOfProducts extends State<ListOfProducts> {
                         onPressed: () {},
                         child: Text(
                           'Список\nпредложений',
-                          style: TextStyle18,
+                          style: whiteText(20),
                           textAlign: TextAlign.center,
                         ),
                       ),
