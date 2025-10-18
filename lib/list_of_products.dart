@@ -2,10 +2,11 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:price_scrapper_app/category.dart';
-// import 'dart:developer';
+import 'dart:developer';
 
 // import 'dart:developer' show log;
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:price_scrapper_app/main.dart';
 
 // Первый экран, создание StatefulWidget
 class ListOfProducts extends StatefulWidget {
@@ -20,6 +21,14 @@ class ListOfProducts extends StatefulWidget {
 // Описываем ListOfProducts
 class _ListOfProducts extends State<ListOfProducts> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  // Вызов функции, кэширование результата запроса
+  Future<List<Category>> categoryFuture = getCategoryList();
+
+  void refreshCategories() {
+    setState(() {
+      categoryFuture = getCategoryList();
+    });
+  }
 
   final List<List<String>> _options = [
     ['productName', 'Модель', ''],
@@ -29,8 +38,6 @@ class _ListOfProducts extends State<ListOfProducts> {
     ['busWidth', 'Ширина шины', ''],
     ['mediumPrice', 'Цена', ''],
   ];
-
-  // String? _selectedValue;
 
   void _openDrawer() {
     _scaffoldKey.currentState!.openEndDrawer();
@@ -48,7 +55,7 @@ class _ListOfProducts extends State<ListOfProducts> {
 
   // Функция что выполняет запрос и полученный json парсит в список
   static Future<List<Category>> getCategoryList() async {
-    var url = Uri.parse('http://10.0.2.2:5000/getCategories');
+    var url = Uri.parse('http://192.168.57.80:8000/getCategories/$uniqueId');
     final response = await http.get(url);
     final List body = json.decode(response.body);
     // log(
@@ -61,7 +68,7 @@ class _ListOfProducts extends State<ListOfProducts> {
 
   // По переданному имени фильтра выдаёт все уникальные значения
   static Future<List<String>> getUniqueValues(String column) async {
-    var url = Uri.parse('http://10.0.2.2:5000/getUniqueValues/$column');
+    var url = Uri.parse('http://192.168.57.80:8000/getUniqueValues/$uniqueId/$column');
     final response = await http.get(url);
     final List body = json.decode(response.body);
     // log(
@@ -73,15 +80,28 @@ class _ListOfProducts extends State<ListOfProducts> {
   }
 
   Future sendFilters() async {
-    List params = [];
+    Map<String, String> queryBody = {};
     for (var elem in _options) {
-      params.add(elem[2]);
+      queryBody[elem[0]] = elem[2];
     }
-    // log("Log event", error: params);
-  }
+    final url = Uri.parse('http://192.168.57.80:8000/filterCategories/$uniqueId');
+    log(
+      "http post data",
+      error: queryBody
+    );
+    final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(queryBody)
+    );
 
-  // Вызов функции, кэширование результата запроса
-  Future<List<Category>> categoryFuture = getCategoryList();
+    if (response.statusCode == 200) {
+      final responseBody = jsonDecode(response.body);
+      log("http post response", error: responseBody);
+    } else {
+      log("http post response", error: response.statusCode);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -136,7 +156,7 @@ class _ListOfProducts extends State<ListOfProducts> {
                         SizedBox(
                           child: Text(_options[index][1], style: whiteText(25)),
                         ),
-                        SizedBox(height: 10),
+                        // SizedBox(height: 10),
                         FutureBuilder(
                           future: getUniqueValues(_options[index][0]),
                           builder: (context, snapshot) {
@@ -154,7 +174,7 @@ class _ListOfProducts extends State<ListOfProducts> {
                                   onChanged: (String? newValue) {
                                     setState(() {
                                       _options[index][2] =
-                                          newValue ?? 'Выберите значение';
+                                          newValue!;
                                     });
                                   },
                                   items:
@@ -194,20 +214,21 @@ class _ListOfProducts extends State<ListOfProducts> {
                             }
                           },
                         ),
-                        SizedBox(height: 10),
+                        SizedBox(height: 20),
                       ],
                     );
                   },
                 ),
               ),
               Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
                     padding: EdgeInsets.all(5),
                     child: ElevatedButton(
                       onPressed: () {
                         sendFilters();
-                        // Здесь можно применить фильтры
+                        refreshCategories();
                         Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
@@ -222,10 +243,10 @@ class _ListOfProducts extends State<ListOfProducts> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      child: Text('Применить', style: whiteText(18)),
+                      child: Text('Применить', style: whiteText(20)),
                     ),
                   ),
-                  SizedBox(width: 10),
+                  // SizedBox(width: 15),
                   Container(
                     padding: EdgeInsets.all(5),
                     child: ElevatedButton(
@@ -245,7 +266,7 @@ class _ListOfProducts extends State<ListOfProducts> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      child: Text('Сбросить', style: whiteText(18)),
+                      child: Text('Сбросить', style: whiteText(20)),
                     ),
                   ),
                 ],
@@ -287,7 +308,7 @@ class _ListOfProducts extends State<ListOfProducts> {
                   ),
                   child: SizedBox(
                     child: Image.network(
-                      "http://10.0.2.2:5000/assets/${category.imagePath}",
+                      "http://192.168.57.80:8000/assets/${category.imagePath}",
                       loadingBuilder: (context, child, loadingProgress) {
                         if (loadingProgress == null) {
                           return child;
@@ -460,21 +481,26 @@ class _ListOfProducts extends State<ListOfProducts> {
 
                     SizedBox(width: 8),
 
-                    Container(
-                      // padding: EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Color(0xFFFF7B54),
-                      ),
-                      child: TextButton(
-                        onPressed: () {},
-                        child: Text(
-                          'Список\nпредложений',
-                          style: whiteText(20),
-                          textAlign: TextAlign.center,
+                    GestureDetector(
+                      onTap: (){
+
+                      },
+                      child: Container(
+                        // padding: EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: Color(0xFFFF7B54),
+                        ),
+                        child: TextButton(
+                          onPressed: () {},
+                          child: Text(
+                            'Список\nпредложений',
+                            style: whiteText(20),
+                            textAlign: TextAlign.center,
+                          ),
                         ),
                       ),
-                    ),
+                    )
                   ],
                 ),
               ],

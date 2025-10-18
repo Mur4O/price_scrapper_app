@@ -17,7 +17,7 @@ class Home extends StatefulWidget {
 // Главный экран
 class HomeState extends State<Home> {
   Future<bool> _createSession() async {
-    String uri = 'http://10.0.2.2:5000/createSession?sessionGUID=$uniqueId';
+    String uri = 'http://192.168.57.80:8000/createSession?sessionId=$uniqueId';
     var url = Uri.parse(uri);
     final response = await http.post(url);
     if (response.statusCode == 200) {
