@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:price_scrapper_app/list_of_categories.dart';
 import 'package:price_scrapper_app/list_of_products.dart';
 import 'package:price_scrapper_app/error_page.dart';
 import 'package:uuid/uuid.dart';
@@ -16,8 +17,10 @@ class Home extends StatefulWidget {
 
 // Главный экран
 class HomeState extends State<Home> {
+  static String serverAddress = '100.98.58.69';
+
   Future<bool> _createSession() async {
-    String uri = 'http://192.168.57.80:8000/createSession?sessionId=$uniqueId';
+    String uri = 'http://$serverAddress:8000/createSession?sessionId=$uniqueId';
     var url = Uri.parse(uri);
     final response = await http.post(url);
     if (response.statusCode == 200) {
@@ -26,10 +29,6 @@ class HomeState extends State<Home> {
       return false;
     }
   }
-
-  List<Widget> pages = [ListOfProducts(), ErrorPage()];
-
-  int _pageindex = 0;
 
   // void _updatePage() {
   //   setState(() {});
@@ -42,7 +41,7 @@ class HomeState extends State<Home> {
         future: _createSession(),
         builder: (context, snapshot) {
           if (snapshot.data == true) {
-            return pages[_pageindex];
+            return ListOfCategories();
           } else {
             return ErrorPage();
           }
