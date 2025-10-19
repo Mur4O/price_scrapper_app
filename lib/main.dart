@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:price_scrapper_app/list_of_categories.dart';
-import 'package:price_scrapper_app/list_of_products.dart';
 import 'package:price_scrapper_app/error_page.dart';
 import 'package:uuid/uuid.dart';
 import 'package:http/http.dart' as http;

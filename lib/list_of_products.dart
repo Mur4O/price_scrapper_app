@@ -1,16 +1,19 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:price_scrapper_app/category.dart';
+import 'package:price_scrapper_app/product.dart';
 import 'dart:developer';
-// import 'dart:developer' show log;
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:price_scrapper_app/main.dart';
+// import 'dart:developer' show log;
 
-// Первый экран, создание StatefulWidget
+// Второй экран, создание StatefulWidget
 class ListOfProducts extends StatefulWidget {
+  // Парметры класса
+  final String? categoryId;
+
   //Конструктор
-  const ListOfProducts({super.key});
+  const ListOfProducts({super.key, required this.categoryId});
 
   @override
   // Прописываем обновление состояния
@@ -19,23 +22,26 @@ class ListOfProducts extends StatefulWidget {
 
 // Описываем ListOfProducts
 class _ListOfProducts extends State<ListOfProducts> {
+  static String serverAddress = '100.98.58.69';
+
+  // Получаем из ListOfProducts значение
+  late final int categoryId = int.parse(widget.categoryId ?? '');
+
+  // Ключ, содержит состояние (в данном случае Scaffold'а)
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   // Вызов функции, кэширование результата запроса
-  Future<List<Category>> categoryFuture = getCategoryList();
+  late Future<List<Product>> categoryFuture = getProductList(categoryId);
 
   void refreshCategories() {
     setState(() {
-      categoryFuture = getCategoryList();
+      categoryFuture = getProductList(categoryId);
     });
   }
 
   final List<List<String>> _options = [
     ['productName', 'Модель', ''],
-    ['graphicsProcessor', 'Графический процессор', ''],
-    ['memorySize', 'Объём видеопамяти', ''],
-    ['memoryType', 'Тип видеопамяти', ''],
-    ['busWidth', 'Ширина шины', ''],
-    ['mediumPrice', 'Цена', ''],
+    ['price', 'Цена', ''],
   ];
 
   void _openDrawer() {
@@ -53,8 +59,10 @@ class _ListOfProducts extends State<ListOfProducts> {
   }
 
   // Функция что выполняет запрос и полученный json парсит в список
-  static Future<List<Category>> getCategoryList() async {
-    var url = Uri.parse('http://192.168.57.80:8000/getCategories/$uniqueId');
+  static Future<List<Product>> getProductList(int id) async {
+    var url = Uri.parse(
+      'http://$serverAddress:8000/getProductsByCategory/$uniqueId/$id',
+    );
     final response = await http.get(url);
     final List body = json.decode(response.body);
     // log(
@@ -62,19 +70,21 @@ class _ListOfProducts extends State<ListOfProducts> {
     //   name: "buttonLog",
     //   error: body.map((e) => Category.fromJson(e)).toList(),
     // );
-    return body.map((e) => Category.fromJson(e)).toList();
+    return body.map((e) => Product.fromJson(e)).toList();
   }
 
   // По переданному имени фильтра выдаёт все уникальные значения
   static Future<List<String>> getUniqueValues(String column) async {
-    var url = Uri.parse('http://192.168.57.80:8000/getUniqueValues/$uniqueId/$column');
+    var url = Uri.parse(
+      'http://$serverAddress:8000/getUniqueValues/$uniqueId/$column/2',
+    );
     final response = await http.get(url);
     final List body = json.decode(response.body);
-    // log(
-    //   "Log Event",
-    //   name: "buttonLog",
-    //   error: body.map((e) => e.toString()).toList(),
-    // );
+    log(
+      "Log Event",
+      name: "buttonLog",
+      error: body.map((e) => e.toString()).toList(),
+    );
     return body.map((e) => e.toString()).toList();
   }
 
@@ -83,15 +93,14 @@ class _ListOfProducts extends State<ListOfProducts> {
     for (var elem in _options) {
       queryBody[elem[0]] = elem[2];
     }
-    final url = Uri.parse('http://192.168.57.80:8000/filterCategories/$uniqueId');
-    log(
-      "http post data",
-      error: queryBody
+    final url = Uri.parse(
+      'http://$serverAddress:8000/filterCategories/$uniqueId',
     );
+    log("http post data", error: queryBody);
     final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(queryBody)
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(queryBody),
     );
 
     if (response.statusCode == 200) {
@@ -107,19 +116,23 @@ class _ListOfProducts extends State<ListOfProducts> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Color(0xFF2A2A3C),
-        toolbarHeight: 50,
-        // automaticallyImplyLeading: false,
-        actions: <Widget>[Container()], // Скрывает дефолтную кнопку endDrawer
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            TextButton.icon(
-              onPressed: _openDrawer,
-              icon: Icon(Symbols.page_info, size: 20),
-              label: Text('Фильтры', style: TextStyle(fontSize: 20)),
-            ),
-          ],
+        toolbarHeight: 30,
+        // automaticallyImplyLeading: false, // Скрывает дефолтную кнопку endDrawer
+        actions: <Widget>[Container()],
+        title: Padding(
+          padding: EdgeInsets.only(bottom: 10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton.icon(
+                onPressed: _openDrawer,
+                icon: Icon(Symbols.page_info, size: 20),
+                label: Text('Фильтры', style: TextStyle(fontSize: 18)),
+              ),
+            ],
+          ),
         ),
       ),
       backgroundColor: Color(0xFF1E1E2E),
@@ -153,7 +166,7 @@ class _ListOfProducts extends State<ListOfProducts> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SizedBox(
-                          child: Text(_options[index][1], style: whiteText(25)),
+                          child: Text(_options[index][1], style: whiteText(23)),
                         ),
                         // SizedBox(height: 10),
                         FutureBuilder(
@@ -172,8 +185,7 @@ class _ListOfProducts extends State<ListOfProducts> {
                                   initialValue: _options[index][2],
                                   onChanged: (String? newValue) {
                                     setState(() {
-                                      _options[index][2] =
-                                          newValue!;
+                                      _options[index][2] = newValue!;
                                     });
                                   },
                                   items:
@@ -186,7 +198,7 @@ class _ListOfProducts extends State<ListOfProducts> {
                                             value,
                                             // overflow: TextOverflow.ellipsis,
                                             softWrap: true,
-                                            style: whiteText(18),
+                                            style: whiteText(16),
                                           ),
                                         );
                                       }).toList(),
@@ -197,7 +209,7 @@ class _ListOfProducts extends State<ListOfProducts> {
                                     ) {
                                       return Text(
                                         value,
-                                        style: whiteText(18),
+                                        style: whiteText(16),
                                         overflow: TextOverflow.ellipsis,
                                         // Обрезает текст ...
                                         maxLines: 1,
@@ -242,7 +254,7 @@ class _ListOfProducts extends State<ListOfProducts> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      child: Text('Применить', style: whiteText(20)),
+                      child: Text('Применить', style: whiteText(16)),
                     ),
                   ),
                   // SizedBox(width: 15),
@@ -265,7 +277,7 @@ class _ListOfProducts extends State<ListOfProducts> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      child: Text('Сбросить', style: whiteText(20)),
+                      child: Text('Сбросить', style: whiteText(16)),
                     ),
                   ),
                 ],
@@ -278,11 +290,11 @@ class _ListOfProducts extends State<ListOfProducts> {
     );
   }
 
-  Widget buildCategory(List<Category> categoryList) {
+  Widget buildCategory(List<Product> productList) {
     return ListView.builder(
-      itemCount: categoryList.length,
+      itemCount: productList.length,
       itemBuilder: (context, index) {
-        final category = categoryList[index];
+        final product = productList[index];
         return Padding(
           padding: EdgeInsets.only(top: 15, left: 10, right: 10),
           child: Container(
@@ -307,7 +319,8 @@ class _ListOfProducts extends State<ListOfProducts> {
                   ),
                   child: SizedBox(
                     child: Image.network(
-                      "http://192.168.57.80:8000/assets/${category.imagePath}",
+                      "http://$serverAddress:8000/assets/1.png",
+                      //${product.imagePath}
                       loadingBuilder: (context, child, loadingProgress) {
                         if (loadingProgress == null) {
                           return child;
@@ -321,7 +334,7 @@ class _ListOfProducts extends State<ListOfProducts> {
                           child: Center(
                             child: Text(
                               'Изображение недоступно',
-                              style: whiteText(20),
+                              style: whiteText(16),
                               textAlign: TextAlign.center,
                             ),
                           ),
@@ -343,149 +356,50 @@ class _ListOfProducts extends State<ListOfProducts> {
                   ),
                   child: Center(
                     child: Text(
-                      category.productName ?? 'No data',
+                      product.productName ?? 'No data',
                       style: whiteText(20),
                     ),
                   ),
                 ),
 
-                SizedBox(height: 8),
-
-                // Строка 1
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Container(
-                      padding: EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Color(0xFF1E1E2E),
-                      ),
-                      child: Text(
-                        category.graphicsProcessor ?? 'No data',
-                        style: whiteText(20),
-                      ),
-                    ),
-
-                    SizedBox(width: 8),
-
-                    Container(
-                      padding: EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Color(0xFF1E1E2E),
-                      ),
-                      child: Text(
-                        category.memorySize ?? 'No data',
-                        style: whiteText(20),
-                      ),
-                    ),
-
-                    SizedBox(width: 8),
-
-                    Container(
-                      padding: EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Color(0xFF1E1E2E),
-                      ),
-                      child: Text(
-                        category.memoryType ?? 'No data',
-                        style: whiteText(20),
-                      ),
-                    ),
-                  ],
-                ),
-
-                SizedBox(height: 8),
-
-                // Строка 2
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Container(
-                      padding: EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Color(0xFF1E1E2E),
-                      ),
-                      child: Text(
-                        category.rops ?? 'No data',
-                        style: whiteText(20),
-                      ),
-                    ),
-                    Container(
-                      padding: EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Color(0xFF1E1E2E),
-                      ),
-                      child: Text(
-                        category.tmus ?? 'No data',
-                        style: whiteText(20),
-                      ),
-                    ),
-                    Container(
-                      padding: EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Color(0xFF1E1E2E),
-                      ),
-                      child: Text(
-                        category.cores ?? 'No data',
-                        style: whiteText(20),
-                      ),
-                    ),
-                    Container(
-                      padding: EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Color(0xFF1E1E2E),
-                      ),
-                      child: Text(
-                        category.busWidth ?? 'No data',
-                        style: whiteText(20),
-                      ),
-                    ),
-                  ],
-                ),
-
-                SizedBox(height: 8),
+                SizedBox(height: 6),
 
                 // Строка цена + список предложений
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  // crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Container(
-                      padding: EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Color(0xFF6C63FF),
-                      ),
-                      child: Column(
-                        children: [
-                          Text(
-                            'Средняя цена:',
-                            style: whiteText(18),
-                            textAlign: TextAlign.center,
-                          ),
-                          Text(
-                            category.mediumPrice ?? 'No data',
-                            style: whiteText(20),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
+                    Expanded(
+                      flex: 1,
+                      child: Container(
+                        padding: EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: Color(0xFF6C63FF),
+                        ),
+                        child: Column(
+                          children: [
+                            Text(
+                              'Лучшая цена:',
+                              style: whiteText(16),
+                              textAlign: TextAlign.center,
+                            ),
+                            Text(
+                              product.price ?? 'No data',
+                              style: whiteText(16),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
 
                     SizedBox(width: 8),
 
-                    GestureDetector(
-                      onTap: (){
-
-                      },
+                    Expanded(
+                      flex: 1,
                       child: Container(
-                        // padding: EdgeInsets.all(8),
+                        padding: EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10),
                           color: Color(0xFFFF7B54),
@@ -493,13 +407,13 @@ class _ListOfProducts extends State<ListOfProducts> {
                         child: TextButton(
                           onPressed: () {},
                           child: Text(
-                            'Список\nпредложений',
-                            style: whiteText(20),
+                            'Подробности',
+                            style: whiteText(16),
                             textAlign: TextAlign.center,
                           ),
                         ),
                       ),
-                    )
+                    ),
                   ],
                 ),
               ],

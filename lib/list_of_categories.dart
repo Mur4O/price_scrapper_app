@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:price_scrapper_app/category.dart';
 import 'dart:developer';
+import 'package:price_scrapper_app/list_of_products.dart';
 
 // import 'dart:developer' show log;
 import 'package:material_symbols_icons/symbols.dart';
@@ -73,7 +74,7 @@ class _ListOfCategories extends State<ListOfCategories> {
   // По переданному имени фильтра выдаёт все уникальные значения
   static Future<List<String>> getUniqueValues(String column) async {
     var url = Uri.parse(
-      'http://$serverAddress:8000/getUniqueValues/$uniqueId/$column',
+      'http://$serverAddress:8000/getUniqueValues/$uniqueId/$column/1',
     );
     final response = await http.get(url);
     final List body = json.decode(response.body);
@@ -114,18 +115,21 @@ class _ListOfCategories extends State<ListOfCategories> {
       key: _scaffoldKey,
       appBar: AppBar(
         backgroundColor: Color(0xFF2A2A3C),
-        toolbarHeight: 50,
-        // automaticallyImplyLeading: false,
-        actions: <Widget>[Container()], // Скрывает дефолтную кнопку endDrawer
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            TextButton.icon(
-              onPressed: _openDrawer,
-              icon: Icon(Symbols.page_info, size: 20),
-              label: Text('Фильтры', style: TextStyle(fontSize: 20)),
-            ),
-          ],
+        toolbarHeight: 30,
+        // automaticallyImplyLeading: false, // Скрывает дефолтную кнопку endDrawer
+        actions: <Widget>[Container()],
+        title: Padding(
+          padding: EdgeInsets.only(bottom: 10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton.icon(
+                onPressed: _openDrawer,
+                icon: Icon(Symbols.page_info, size: 20),
+                label: Text('Фильтры', style: TextStyle(fontSize: 18)),
+              ),
+            ],
+          ),
         ),
       ),
       backgroundColor: Color(0xFF1E1E2E),
@@ -561,21 +565,25 @@ class _ListOfCategories extends State<ListOfCategories> {
 
                     Expanded(
                       flex: 1,
-                      child: GestureDetector(
-                        onTap: () {},
-                        child: Container(
-                          // padding: EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: Color(0xFFFF7B54),
-                          ),
-                          child: TextButton(
-                            onPressed: () {},
-                            child: Text(
-                              'Список\nпредложений',
-                              style: whiteText(16),
-                              textAlign: TextAlign.center,
-                            ),
+                      child: Container(
+                        // padding: EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: Color(0xFFFF7B54),
+                        ),
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute<void>(
+                                builder: (context) => ListOfProducts(categoryId: category.categoryId),
+                              ),
+                            );
+                          },
+                          child: Text(
+                            'Список\nпредложений',
+                            style: whiteText(16),
+                            textAlign: TextAlign.center,
                           ),
                         ),
                       ),

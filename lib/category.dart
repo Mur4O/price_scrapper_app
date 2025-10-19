@@ -1,4 +1,5 @@
 class Category {
+  String? categoryId;
   String? productName;
   String? graphicsProcessor;
   String? cores;
@@ -12,6 +13,7 @@ class Category {
 
   Category (
     {
+      this.categoryId,
       this.productName,
       this.graphicsProcessor,
       this.cores,
@@ -26,6 +28,7 @@ class Category {
   );
 
   Category.fromJson(Map<String, dynamic> json) {
+    categoryId = json['categoryId'];
     productName = json['productName'];
     graphicsProcessor = json['graphicsProcessor'];
     cores = json['cores'];
@@ -36,11 +39,5 @@ class Category {
     busWidth = json['busWidth'];
     mediumPrice = json['mediumPrice'];
     imagePath = json['imagePath'];
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'productName': productName
-    };
   }
 }
