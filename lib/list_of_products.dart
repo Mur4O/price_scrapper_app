@@ -5,7 +5,6 @@ import 'package:price_scrapper_app/product.dart';
 import 'dart:developer';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:price_scrapper_app/main.dart';
-// import 'dart:developer' show log;
 
 // Второй экран, создание StatefulWidget
 class ListOfProducts extends StatefulWidget {
@@ -22,7 +21,7 @@ class ListOfProducts extends StatefulWidget {
 
 // Описываем ListOfProducts
 class _ListOfProducts extends State<ListOfProducts> {
-  static String serverAddress = '100.98.58.69';
+  static String serverAddress = 'https://api.randomwordcombination.com';
 
   // Получаем из ListOfProducts значение
   late final int categoryId = int.parse(widget.categoryId ?? '');
@@ -61,7 +60,7 @@ class _ListOfProducts extends State<ListOfProducts> {
   // Функция что выполняет запрос и полученный json парсит в список
   static Future<List<Product>> getProductList(int id) async {
     var url = Uri.parse(
-      'http://$serverAddress:8000/getProductsByCategory/$uniqueId/$id',
+      '${HomeState.serverAddress}/getProductsByCategory/$uniqueId/$id',
     );
     final response = await http.get(url);
     final List body = json.decode(response.body);
@@ -76,7 +75,7 @@ class _ListOfProducts extends State<ListOfProducts> {
   // По переданному имени фильтра выдаёт все уникальные значения
   static Future<List<String>> getUniqueValues(String column) async {
     var url = Uri.parse(
-      'http://$serverAddress:8000/getUniqueValues/$uniqueId/$column/2',
+      '$serverAddress/getUniqueValues/$uniqueId/$column/2',
     );
     final response = await http.get(url);
     final List body = json.decode(response.body);
@@ -94,7 +93,7 @@ class _ListOfProducts extends State<ListOfProducts> {
       queryBody[elem[0]] = elem[2];
     }
     final url = Uri.parse(
-      'http://$serverAddress:8000/filterCategories/$uniqueId',
+      '$serverAddress/filterCategories/$uniqueId',
     );
     log("http post data", error: queryBody);
     final response = await http.post(
@@ -319,7 +318,7 @@ class _ListOfProducts extends State<ListOfProducts> {
                   ),
                   child: SizedBox(
                     child: Image.network(
-                      "http://$serverAddress:8000/assets/1.png",
+                      "$serverAddress/assets/1.png",
                       //${product.imagePath}
                       loadingBuilder: (context, child, loadingProgress) {
                         if (loadingProgress == null) {

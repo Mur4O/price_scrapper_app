@@ -5,7 +5,6 @@ import 'package:price_scrapper_app/category.dart';
 import 'dart:developer';
 import 'package:price_scrapper_app/list_of_products.dart';
 
-// import 'dart:developer' show log;
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:price_scrapper_app/main.dart';
 
@@ -21,7 +20,7 @@ class ListOfCategories extends StatefulWidget {
 
 // Описываем ListOfCategories
 class _ListOfCategories extends State<ListOfCategories> {
-  static String serverAddress = '100.98.58.69';
+  static String serverAddress = 'https://api.randomwordcombination.com';
 
   // Ключ, содержит состояние (в данном случае Scaffold'а)
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -60,7 +59,7 @@ class _ListOfCategories extends State<ListOfCategories> {
 
   // Функция что выполняет запрос и полученный json парсит в список
   static Future<List<Category>> getCategoryList() async {
-    var url = Uri.parse('http://$serverAddress:8000/getCategories/$uniqueId');
+    var url = Uri.parse('${HomeState.serverAddress}/getCategories/$uniqueId');
     final response = await http.get(url);
     final List body = json.decode(response.body);
     // log(
@@ -74,7 +73,7 @@ class _ListOfCategories extends State<ListOfCategories> {
   // По переданному имени фильтра выдаёт все уникальные значения
   static Future<List<String>> getUniqueValues(String column) async {
     var url = Uri.parse(
-      'http://$serverAddress:8000/getUniqueValues/$uniqueId/$column/1',
+      '$serverAddress/getUniqueValues/$uniqueId/$column/1',
     );
     final response = await http.get(url);
     final List body = json.decode(response.body);
@@ -92,7 +91,7 @@ class _ListOfCategories extends State<ListOfCategories> {
       queryBody[elem[0]] = elem[2];
     }
     final url = Uri.parse(
-      'http://$serverAddress:8000/filterCategories/$uniqueId',
+      '$serverAddress/filterCategories/$uniqueId',
     );
     log("http post data", error: queryBody);
     final response = await http.post(
@@ -316,7 +315,7 @@ class _ListOfCategories extends State<ListOfCategories> {
                   ),
                   child: SizedBox(
                     child: Image.network(
-                      "http://$serverAddress:8000/assets/${category.imagePath}",
+                      "$serverAddress/assets/${category.imagePath}",
                       loadingBuilder: (context, child, loadingProgress) {
                         if (loadingProgress == null) {
                           return child;
