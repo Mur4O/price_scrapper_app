@@ -4,6 +4,7 @@ import 'package:price_scrapper_app/list_of_categories.dart';
 import 'package:price_scrapper_app/error_page.dart';
 import 'package:uuid/uuid.dart';
 import 'package:http/http.dart' as http;
+import 'package:fluttertoast/fluttertoast.dart';
 
 String uniqueId = Uuid().v4();
 
@@ -16,47 +17,30 @@ class Home extends StatefulWidget {
 
 // Главный экран
 class HomeState extends State<Home> {
-  static String serverAddress = 'https://api.randomwordcombination.com';
+  static String serverAddress = 'https://api.randomwordcombination.com/a18600cc-13c0-40a2-9e48-81b7efc5854b';
 
   Future<bool> _createSession() async {
-    // String uri = '$serverAddress/createSession?sessionId=$uniqueId';
-    // var url = Uri.parse(uri);
-    // debugPrint(uri);
-    // final response = await http.post(url);
-    // debugPrint(uri);
-    // debugPrint('${response.statusCode}');
-    // // log(
-    // //   "Log Event",
-    // //   name: "buttonLog",
-    // //   error: uri,
-    // // );
-    // if (response.statusCode == 200) {
-    //   return true;
-    // } else {
-    //   return false;
-    // }
-
     try {
       String uri = '$serverAddress/createSession?sessionId=$uniqueId';
       var url = Uri.parse(uri);
 
-      debugPrint(uri);
-
       final response = await http
           .post(url)
-          .timeout(Duration(seconds: 20));
-
-      debugPrint("AFTER REQUEST");
-      debugPrint('${response.statusCode}');
+          .timeout(Duration(seconds: 10));
 
       return true;
     } catch (e) {
-      debugPrint("ERROR: $e");
+      Fluttertoast.showToast(
+        msg: 'Error: ${e}',
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0
+      );
       return false;
     }
   }
-
-  final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
   // void _updatePage() {
   //   setState(() {});

@@ -21,7 +21,6 @@ class ListOfProducts extends StatefulWidget {
 
 // Описываем ListOfProducts
 class _ListOfProducts extends State<ListOfProducts> {
-  static String serverAddress = 'https://api.randomwordcombination.com';
 
   // Получаем из ListOfProducts значение
   late final int categoryId = int.parse(widget.categoryId ?? '');
@@ -75,7 +74,7 @@ class _ListOfProducts extends State<ListOfProducts> {
   // По переданному имени фильтра выдаёт все уникальные значения
   static Future<List<String>> getUniqueValues(String column) async {
     var url = Uri.parse(
-      '$serverAddress/getUniqueValues/$uniqueId/$column/2',
+      '${HomeState.serverAddress}/getUniqueValues/$uniqueId/$column/2',
     );
     final response = await http.get(url);
     final List body = json.decode(response.body);
@@ -93,7 +92,7 @@ class _ListOfProducts extends State<ListOfProducts> {
       queryBody[elem[0]] = elem[2];
     }
     final url = Uri.parse(
-      '$serverAddress/filterCategories/$uniqueId',
+      '${HomeState.serverAddress}/filterCategories/$uniqueId',
     );
     log("http post data", error: queryBody);
     final response = await http.post(
@@ -318,7 +317,7 @@ class _ListOfProducts extends State<ListOfProducts> {
                   ),
                   child: SizedBox(
                     child: Image.network(
-                      "$serverAddress/assets/1.png",
+                      "${HomeState.serverAddress}/assets/1.png",
                       //${product.imagePath}
                       loadingBuilder: (context, child, loadingProgress) {
                         if (loadingProgress == null) {

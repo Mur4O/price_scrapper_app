@@ -20,7 +20,6 @@ class ListOfCategories extends StatefulWidget {
 
 // Описываем ListOfCategories
 class _ListOfCategories extends State<ListOfCategories> {
-  static String serverAddress = 'https://api.randomwordcombination.com';
 
   // Ключ, содержит состояние (в данном случае Scaffold'а)
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -73,7 +72,7 @@ class _ListOfCategories extends State<ListOfCategories> {
   // По переданному имени фильтра выдаёт все уникальные значения
   static Future<List<String>> getUniqueValues(String column) async {
     var url = Uri.parse(
-      '$serverAddress/getUniqueValues/$uniqueId/$column/1',
+      '${HomeState.serverAddress}/getUniqueValues/$uniqueId/$column/1',
     );
     final response = await http.get(url);
     final List body = json.decode(response.body);
@@ -91,7 +90,7 @@ class _ListOfCategories extends State<ListOfCategories> {
       queryBody[elem[0]] = elem[2];
     }
     final url = Uri.parse(
-      '$serverAddress/filterCategories/$uniqueId',
+      '${HomeState.serverAddress}/filterCategories/$uniqueId',
     );
     log("http post data", error: queryBody);
     final response = await http.post(
@@ -315,7 +314,7 @@ class _ListOfCategories extends State<ListOfCategories> {
                   ),
                   child: SizedBox(
                     child: Image.network(
-                      "$serverAddress/assets/${category.imagePath}",
+                      "${HomeState.serverAddress}/assets/${category.imagePath}",
                       loadingBuilder: (context, child, loadingProgress) {
                         if (loadingProgress == null) {
                           return child;
