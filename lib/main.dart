@@ -1,7 +1,5 @@
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:price_scrapper_app/list_of_categories.dart';
-import 'package:price_scrapper_app/error_page.dart';
 import 'package:uuid/uuid.dart';
 import 'package:http/http.dart' as http;
 import 'package:fluttertoast/fluttertoast.dart';
@@ -24,14 +22,14 @@ class HomeState extends State<Home> {
       String uri = '$serverAddress/createSession?sessionId=$uniqueId';
       var url = Uri.parse(uri);
 
-      final response = await http
+      await http
           .post(url)
           .timeout(Duration(seconds: 10));
 
       return true;
     } catch (e) {
       Fluttertoast.showToast(
-        msg: 'Error: ${e}',
+        msg: 'Error: $e',
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.BOTTOM,
         backgroundColor: Colors.red,
