@@ -1,197 +1,76 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
+import 'package:price_scrapper_app/list_of_categories.dart';
+import 'package:uuid/uuid.dart';
+import 'package:http/http.dart' as http;
+import 'package:fluttertoast/fluttertoast.dart';
 
+String uniqueId = Uuid().v4();
 
 class Home extends StatefulWidget {
+  const Home({super.key});
+
   @override
-  _HomeState createState() => _HomeState();
+  HomeState createState() => HomeState();
 }
 
 // Главный экран
-class _HomeState extends State<Home> {
-  @override
+class HomeState extends State<Home> {
+  static String serverAddress = 'https://api.randomwordcombination.com/a18600cc-13c0-40a2-9e48-81b7efc5854b';
 
-  List<Widget> pages = [
-    FirstScreen(),
-    SecondScreen()
-  ];
+  Future<bool> _createSession() async {
+    try {
+      String uri = '$serverAddress/createSession?sessionId=$uniqueId';
+      var url = Uri.parse(uri);
 
-  int _pageindex = 0;
+      await http
+          .post(url)
+          .timeout(Duration(seconds: 10));
 
-  void _updatePage() {
-    setState(() {});
+      return true;
+    } catch (e) {
+      Fluttertoast.showToast(
+        msg: 'Error: $e',
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0
+      );
+      return false;
+    }
   }
 
+  // void _updatePage() {
+  //   setState(() {});
+  // }
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData.dark(),
-      home: Scaffold(
-        body: pages.elementAt(_pageindex),
-        bottomNavigationBar: BottomAppBar(
-          // height: 50,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              IconButton(icon: Icon(Icons.ads_click), onPressed: () {_pageindex = 0; _updatePage();}),
-              IconButton(icon: Icon(Icons.search), onPressed: () {_pageindex = 1; _updatePage();}),
-              IconButton(icon: Icon(Icons.menu), onPressed: () {}),
-            ],
-          ),
-        )
-      )
-    );
-  }
-}
-
-// Первый экран, создание StatefulWidget
-class FirstScreen extends StatefulWidget {
-  @override
-  // Прописываем обновление состояния
-  _FirstScreenState createState() => _FirstScreenState();
-}
-
-// Как раз дефолтное состояние экрана
-class _FirstScreenState extends State<FirstScreen> {
-  @override
-
-  final double textSize = 22;
-  int _counter = 0;
-  String _submittedText = '';
-
-  void _incrementCounter() {
-    setState(() {
-      _counter += 1;
-    });
-  }
-
-  void _updateSubmittedText(String text) {
-    setState(() {
-      _submittedText = "$text";
-    });
-  }
-
-  Widget build(BuildContext context) {
-    return Scaffold(
-      //appBar: AppBar(),
-
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // Каждое дитё в центер чтоб по-горизонтали по центру было
-          Center(
-            child: Text(
-                'Счётчик: $_counter', style: TextStyle(fontSize: textSize)),
-          ),
-
-          Padding(
-              padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
+      home: FutureBuilder<bool>(
+        future: _createSession(),
+        builder: (context, snapshot) {
+          if (snapshot.data == true) {
+            return ListOfCategories();
+          } else if (snapshot.data == false) {
+            // return ErrorPage();
+            return Container(
+              color: Color(0xFF2A2A3C),
               child: Center(
-                  child: ElevatedButton(
-                    child: SizedBox(
-                        width: 120,
-                        height: 60,
-                        child: Center(child: Text(
-                            'Жми', style: TextStyle(fontSize: textSize)))
-                    ),
-                    onPressed: () {
-                      _incrementCounter();
-                    },
-                  ))),
-
-          TextButton(
-              onPressed: () {
-                _incrementCounter();
-              },
-              child: Text(
-                  'Текстовая кнопка', style: TextStyle(fontSize: textSize))
-          ),
-
-          Padding(
-            padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
-            child: SizedBox(
-              width: 250.0,
-              child: TextField(
-                textAlign: TextAlign.center,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Введите что-нибудь',
+                child: Text(
+                  'Возникла ошибка, перезагрузите приложение'
                 ),
-                onSubmitted: (text) {
-                  _updateSubmittedText("$text");
-                },
               ),
-            ),
-          ),
-
-          Center(
-            child: Text('Вы ввели $_submittedText',
-                style: TextStyle(fontSize: textSize)),
-          ),
-        ],
-      ),
-
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.plus_one),
-        onPressed: () {
-          _incrementCounter();
-        }
-      )
-    );
-  }
-}
-
-class SecondScreen extends StatefulWidget {
-  @override
-  _SecondScreenState createState() => _SecondScreenState();
-}
-
-class _SecondScreenState extends State<SecondScreen> {
-  final double textSize = 22;
-  final double videocardTextSize = 20;
-
-  final int itemCount = 3;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: 350),
-          child: ListView.builder(
-            // shrinkWrap: true,
-            itemCount: itemCount,
-            itemBuilder: (context, index) {
-              return Padding(
-                padding: EdgeInsets.only(bottom: 10.0, left: 10, right: 10),
-                child: Container(
-                  width: 100,
-                  height: 350,
-                  padding: EdgeInsets.all(15.0),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: Colors.white10,
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Image.asset('assets/vidyaha.png'),
-                      Text(
-                        'Видеокарта MSI NVIDIA GeForce RTX 5070 RTX 5070 12G GAMING TRIO OC 12ГБ Gaming Trio, GDDR7, OC, Ret',
-                        style: TextStyle(fontSize: videocardTextSize),
-                      ),
-                      Text(
-                        '81 000₽',
-                        style: TextStyle(fontSize: textSize),
-                        textAlign: TextAlign.left,
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
+            );
+          } else {
+            return Container(
+              color: Color(0xFF2A2A3C),
+              child: Center(
+                child: CircularProgressIndicator()
+              )
+            );
+          }
+        },
       ),
     );
   }
