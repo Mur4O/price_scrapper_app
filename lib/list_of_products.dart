@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:price_scrapper_app/product.dart';
+import 'package:price_scrapper_app/product_detail.dart';
 import 'dart:developer';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:price_scrapper_app/main.dart';
@@ -402,9 +403,16 @@ class _ListOfProducts extends State<ListOfProducts> {
                           borderRadius: BorderRadius.circular(10),
                           color: Color(0xFFFF7B54),
                         ),
-                        child: TextButton(
-                          onPressed: () {},
-                          child: Text(
+                                                      child: TextButton(
+                                                        onPressed: () {
+                                                          Navigator.push(
+                                                            context,
+                                                            MaterialPageRoute(
+                                                              builder: (context) => ProductDetailScreen(product: product),
+                                                            ),
+                                                          );
+                                                        },
+                                                        child: Text(
                             'Подробности',
                             style: whiteText(16),
                             textAlign: TextAlign.center,
